@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MonsterArean.cpp" />
+    <ClCompile Include="MonsterArena.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
