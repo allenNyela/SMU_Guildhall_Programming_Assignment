@@ -89,10 +89,10 @@ class Goblin : public Monster
 public:
 	Goblin() {
 		setType(MonsterType::GoblinType);
-		setHealth(30); //Arbitrary Value, MODIFY
-		setMaxHealth(100); //Arbitrary Value, MODIFY
+		setHealth(40); //Arbitrary Value, MODIFY
+		setMaxHealth(40); //Arbitrary Value, MODIFY
 		setDamage(10); //Arbitrary Value, MODIFY
-		setNumOfAttacks(3); //Arbitrary Value, MODIFY
+		setNumOfAttacks(5); //Arbitrary Value, MODIFY
 		setHealthRegen(0);
 		setDamageBlock(0);
 		setDamageReflected(0);
@@ -108,11 +108,11 @@ class Troll : public Monster
 public:
 	Troll() {
 		setType(MonsterType::TrollType);
-		setHealth(52); //Arbitrary Value, MODIFY
-		setMaxHealth(100); //Arbitrary Value, MODIFY
-		setDamage(30); //Arbitrary Value, MODIFY
+		setHealth(70); //Arbitrary Value, MODIFY
+		setMaxHealth(70); //Arbitrary Value, MODIFY
+		setDamage(15); //Arbitrary Value, MODIFY
 		setNumOfAttacks(0);
-		setHealthRegen(5); //Arbitrary Value, MODIFY
+		setHealthRegen(6); //Arbitrary Value, MODIFY
 		setDamageBlock(0);
 		setDamageReflected(0);
 	}
@@ -128,11 +128,11 @@ public:
 	Orc() {
 		setType(MonsterType::OrcType);
 		setHealth(50); //Arbitrary Value, MODIFY
-		setMaxHealth(100); //Arbitrary Value, MODIFY
-		setDamage(10); //Arbitrary Value, MODIFY
+		setMaxHealth(50); //Arbitrary Value, MODIFY
+		setDamage(8); //Arbitrary Value, MODIFY
 		setNumOfAttacks(0);
 		setHealthRegen(0);
-		setDamageBlock(7); //Arbitrary Value, MODIFY
+		setDamageBlock(6); //Arbitrary Value, MODIFY
 		setDamageReflected(5); //Arbitrary Value, MODIFY
 	}
 
@@ -404,30 +404,35 @@ int main()
 	Troll* troll1 = new Troll();
 	Orc* orc1 = new Orc();
 	Goblin* goblin1 = new Goblin();
-	Team team1 = Team("BestMonsters!");
-	team1.addMonster(troll1);
+	Team team1 = Team("Monster Squad");
+	//team1.addMonster(goblin1);
+	//team1.addMonster(troll1);
 	team1.addMonster(orc1);
-	team1.addMonster(goblin1);
+	//team1.addMonster(goblin1);
 	
 	Troll* troll2 = new Troll();
 	Orc* orc2 = new Orc();
 	Goblin* goblin2 = new Goblin();
-	Team team2 = Team("BetterMonsters!");
-	team2.addMonster(orc2);
-	team2.addMonster(goblin2);
+	Team team2 = Team("Scary Crew");
+	//team2.addMonster(orc1);
+	//team2.addMonster(orc2);
+	//team2.addMonster(troll1);
 	//team2.addMonster(troll2);
+	team2.addMonster(goblin2);
 	
-	Battle game = Battle(&team2, &team1);
+	team2.addMonster(goblin1);
+	
+	Battle game = Battle(&team1, &team2);
 
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
 	}
-	game.resetGame();
-	cout << game.printBattleStart();
-	while (!game.isGameOver()) {
-		cout << game.performTurn();
-	}
+	//game.resetGame();
+	//cout << game.printBattleStart();
+	//while (!game.isGameOver()) {
+	//	cout << game.performTurn();
+	//}
 
 	//cout << team2.getLeadMonster()->checkHealth() << endl;
 	//cout << team2.listTeam() << endl;
