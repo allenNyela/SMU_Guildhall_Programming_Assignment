@@ -229,6 +229,24 @@ public:
 		GameOver = false;
 	}
 
+	bool isGameOver() {
+		return GameOver;
+	}
+
+	void resetGame() {
+		GameOver = false;
+		Team1->resetTeam();
+		Team2->resetTeam();
+		Turn = 1;
+	}
+
+	void clearGame(Team* team1, Team* team2) {
+		Team1 = team1;
+		Team2 = team2;
+		Turn = 1;
+		GameOver = false;
+	}
+
 	string printBattleStart() {
 		string start = "";
 		for (int i = 0; i < 100; i++) {
@@ -358,11 +376,13 @@ public:
 
 			if ((*Team1).getLeadMonster() == NULL && (*Team2).getLeadMonster() == NULL) {
 				GameOver = true;
-				turn += "\nBattle over. It's a tie!\n";
+				turn += "\nBattle over. It's a tie!\n\n";
+				turn += printTeams();
 			}
 			else if ((*Team1).getLeadMonster() == NULL) {
 				GameOver = true;
-				turn += "\nBattle over. " + (*Team2).getTeamName() + " team wins!\n";
+				turn += "\nBattle over. " + (*Team2).getTeamName() + " team wins!\n\n";
+				turn += printTeams();
 			}
 			else if ((*Team2).getLeadMonster() == NULL) {
 				GameOver = true;
@@ -385,47 +405,31 @@ int main()
 	Orc* orc1 = new Orc();
 	Goblin* goblin1 = new Goblin();
 	Team team1 = Team("BestMonsters!");
+	team1.addMonster(troll1);
 	team1.addMonster(orc1);
-	//team1.addMonster(troll1);
-	//team1.addMonster(goblin1);
-	
-	
-	
+	team1.addMonster(goblin1);
 	
 	Troll* troll2 = new Troll();
 	Orc* orc2 = new Orc();
 	Goblin* goblin2 = new Goblin();
 	Team team2 = Team("BetterMonsters!");
 	team2.addMonster(orc2);
+	team2.addMonster(goblin2);
 	//team2.addMonster(troll2);
-	//team2.addMonster(goblin2);
 	
-	//team1.removeLeadMonster();
-	//team1.removeLeadMonster();
-	//team1.removeLeadMonster();
-	//team2.removeLeadMonster();
-	//team2.removeLeadMonster();
-	//team2.removeLeadMonster();
 	Battle game = Battle(&team2, &team1);
-	
-	//cout << "Hello World!" << endl;
 
 	cout << game.printBattleStart();
-	for (int i = 0; i < 10; i++) {
+	while (!game.isGameOver()) {
 		cout << game.performTurn();
 	}
-	
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.performTurn();
-	//cout << game.printBattleStart();
-	//cout << game.performTurn();
+	game.resetGame();
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
 	//cout << team2.getLeadMonster()->checkHealth() << endl;
 	//cout << team2.listTeam() << endl;
-
 	return 0;
 }
