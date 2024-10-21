@@ -218,6 +218,7 @@ class Battle
 {
 private:
 	int Turn;
+	int BattleNum;
 	bool GameOver;
 	Team* Team1;
 	Team* Team2;
@@ -226,6 +227,7 @@ public:
 		Team1 = team1;
 		Team2 = team2;
 		Turn = 1;
+		BattleNum = 1;
 		GameOver = false;
 	}
 
@@ -233,11 +235,12 @@ public:
 		return GameOver;
 	}
 
-	void resetGame() {
+	string resetGame() {
 		GameOver = false;
 		Team1->resetTeam();
 		Team2->resetTeam();
 		Turn = 1;
+		return "\nGame resetting...";
 	}
 
 	void clearGame(Team* team1, Team* team2) {
@@ -252,8 +255,9 @@ public:
 		for (int i = 0; i < 100; i++) {
 			start += "-";
 		}
-		start += "\nBattle Starting\n\n";
+		start += "\nBattle Starting           Game: " + to_string(BattleNum) + "\n\n";
 		start += printTeams() + "\n\n";
+		BattleNum++;
 		return start;
 	}
 
@@ -337,7 +341,6 @@ public:
 				(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
 				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
 
-
 				for (int i = 0; i < (*Team2).getLeadMonster()->getNumOfAttacks(); i++) {
 					turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team1->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
 					(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock());
@@ -401,40 +404,121 @@ public:
 
 int main()
 {
+	// Monsters
 	Troll* troll1 = new Troll();
-	Orc* orc1 = new Orc();
-	Goblin* goblin1 = new Goblin();
-	Team team1 = Team("Monster Squad");
-	//team1.addMonster(goblin1);
-	//team1.addMonster(troll1);
-	team1.addMonster(orc1);
-	//team1.addMonster(goblin1);
-	
 	Troll* troll2 = new Troll();
+	Orc* orc1 = new Orc();
 	Orc* orc2 = new Orc();
+	Goblin* goblin1 = new Goblin();
 	Goblin* goblin2 = new Goblin();
+
+	// Teams
+	Team team1 = Team("Monster Squad");
 	Team team2 = Team("Scary Crew");
-	//team2.addMonster(orc1);
-	//team2.addMonster(orc2);
-	//team2.addMonster(troll1);
-	//team2.addMonster(troll2);
-	team2.addMonster(goblin2);
+
+	// Game
+	Battle game = Battle(&team1, &team2);	
 	
+	// Game 1: Goblin vs. Troll
+	team1.addMonster(goblin1);
+	team2.addMonster(troll1);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 2: Goblin vs. 2 Trolls
+	team2.addMonster(troll2);
+	game.clearGame(&team1, &team2);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 3: Troll vs. Orc
+	team1.clearTeam();
+	team2.clearTeam();
+	team1.addMonster(troll1);
+	team2.addMonster(orc1);
+	game.clearGame(&team1, &team2);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 4: Troll vs. 2 Orcs
+	team2.addMonster(orc2);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 5: Orc vs. Goblin
+	team1.clearTeam();
+	team2.clearTeam();
+	team1.addMonster(orc1);
 	team2.addMonster(goblin1);
-	
-	Battle game = Battle(&team1, &team2);
+	game.clearGame(&team1, &team2);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 6: Orc vs. 2 Goblins
+	team2.addMonster(goblin2);
+	cout << game.printBattleStart();
+	while (!game.isGameOver()) {
+		cout << game.performTurn();
+	}
+
+	cout << game.resetGame() << endl;
+
+	// Game 7: 4 Random Monster vs. 4 Random Monsters
+	team1.clearTeam();
+	team2.clearTeam();
+
+	// generate random monster teams
+	srand(time(0));
+	int randMonster;
+	for (int i = 0; i < 4; i++) {
+		randMonster = rand() % 3;
+		if (randMonster == 0) {
+			team1.addMonster(new Goblin());
+		}
+		else if (randMonster == 1) {
+			team1.addMonster(new Troll());
+		}
+		else if (randMonster == 2) {
+			team1.addMonster(new Orc());
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		randMonster = rand() % 3;
+		if (randMonster == 0) {
+			team2.addMonster(new Goblin());
+		}
+		else if (randMonster == 1) {
+			team2.addMonster(new Troll());
+		}
+		else if (randMonster == 2) {
+			team2.addMonster(new Orc());
+		}
+	}
 
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
 	}
-	//game.resetGame();
-	//cout << game.printBattleStart();
-	//while (!game.isGameOver()) {
-	//	cout << game.performTurn();
-	//}
 
-	//cout << team2.getLeadMonster()->checkHealth() << endl;
-	//cout << team2.listTeam() << endl;
 	return 0;
 }
