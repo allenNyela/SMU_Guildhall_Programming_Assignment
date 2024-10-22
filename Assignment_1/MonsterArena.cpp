@@ -243,13 +243,6 @@ public:
 		return "\nGame resetting...";
 	}
 
-	void clearGame(Team* team1, Team* team2) {
-		Team1 = team1;
-		Team2 = team2;
-		Turn = 1;
-		GameOver = false;
-	}
-
 	string printBattleStart() {
 		string start = "";
 		for (int i = 0; i < 100; i++) {
@@ -368,30 +361,20 @@ public:
 				(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->getDamageReflected());
 			}
 
-			if ((*Team1).getLeadMonster()->checkHealth() <= 0) {
-				turn += Team1->getTeamName() + " " + (*Team1).getLeadMonster()->listName() + " has died\n";
-				Team1->removeLeadMonster();
-			}
-			if ((*Team2).getLeadMonster()->checkHealth() <= 0) {
-				turn += Team2->getTeamName() + " " + (*Team2).getLeadMonster()->listName() + " has died\n";
-				Team2->removeLeadMonster();
-			}
+			if ((*Team1).getLeadMonster()->checkHealth() <= 0)
+				turn += printLeaderDied(Team1);
+			if ((*Team2).getLeadMonster()->checkHealth() <= 0)
+				turn += printLeaderDied(Team2);
 
 			if ((*Team1).getLeadMonster() == NULL && (*Team2).getLeadMonster() == NULL) {
 				GameOver = true;
 				turn += "\nBattle over. It's a tie!\n\n";
 				turn += printTeams();
 			}
-			else if ((*Team1).getLeadMonster() == NULL) {
-				GameOver = true;
-				turn += "\nBattle over. " + (*Team2).getTeamName() + " team wins!\n\n";
-				turn += printTeams();
-			}
-			else if ((*Team2).getLeadMonster() == NULL) {
-				GameOver = true;
-				turn += "\nBattle over. " + (*Team1).getTeamName() + " team wins!\n\n";
-				turn += printTeams();
-			}
+			else if ((*Team1).getLeadMonster() == NULL)
+				turn += printBattleWin(Team2);
+			else if ((*Team2).getLeadMonster() == NULL)
+				turn += printBattleWin(Team1);
 
 			turn += "\n";
 			Turn++;
@@ -399,6 +382,19 @@ public:
 			turn += "Battle has already concluded.\n";
 		}
 		return turn;
+	}
+
+	string printBattleWin(Team* team) {
+		GameOver = true;
+		string result = "\nBattle over. " + (*team).getTeamName() + " team wins!\n\n";
+		result += printTeams();
+		return result;
+	}
+
+	string printLeaderDied(Team* team) {
+		string result = (*team).getTeamName() + " " + (*team).getLeadMonster()->listName() + " has died\n";
+		(*team).removeLeadMonster();
+		return result;
 	}
 };
 
@@ -431,7 +427,6 @@ int main()
 
 	// Game 2: Goblin vs. 2 Trolls
 	team2.addMonster(troll2);
-	game.clearGame(&team1, &team2);
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
@@ -444,7 +439,6 @@ int main()
 	team2.clearTeam();
 	team1.addMonster(troll1);
 	team2.addMonster(orc1);
-	game.clearGame(&team1, &team2);
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
@@ -466,7 +460,6 @@ int main()
 	team2.clearTeam();
 	team1.addMonster(orc1);
 	team2.addMonster(goblin1);
-	game.clearGame(&team1, &team2);
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
