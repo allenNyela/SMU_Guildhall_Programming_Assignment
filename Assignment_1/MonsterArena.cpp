@@ -4,12 +4,18 @@
 #include <string>
 using namespace std;
 
+/**
+* List of all monster types
+*/
 enum MonsterType {
 	GoblinType,
 	TrollType,
 	OrcType
 };
 
+/**
+* Monster parent class that maintains all attributes and related functions for each monster.
+*/
 class Monster
 {
 private:
@@ -84,15 +90,18 @@ public:
 	virtual string listName() = 0;
 };
 
+/**
+* Goblin child class.
+*/
 class Goblin : public Monster
 {
 public:
 	Goblin() {
 		setType(MonsterType::GoblinType);
-		setHealth(40); //Arbitrary Value, MODIFY
-		setMaxHealth(40); //Arbitrary Value, MODIFY
-		setDamage(10); //Arbitrary Value, MODIFY
-		setNumOfAttacks(5); //Arbitrary Value, MODIFY
+		setHealth(40);
+		setMaxHealth(40);
+		setDamage(10);
+		setNumOfAttacks(5);
 		setHealthRegen(0);
 		setDamageBlock(0);
 		setDamageReflected(0);
@@ -103,16 +112,19 @@ public:
 	}
 };
 
+/**
+* Troll child class.
+*/
 class Troll : public Monster
 {
 public:
 	Troll() {
 		setType(MonsterType::TrollType);
-		setHealth(70); //Arbitrary Value, MODIFY
-		setMaxHealth(70); //Arbitrary Value, MODIFY
-		setDamage(15); //Arbitrary Value, MODIFY
+		setHealth(70);
+		setMaxHealth(70);
+		setDamage(15);
 		setNumOfAttacks(0);
-		setHealthRegen(6); //Arbitrary Value, MODIFY
+		setHealthRegen(6);
 		setDamageBlock(0);
 		setDamageReflected(0);
 	}
@@ -122,18 +134,21 @@ public:
 	}
 };
 
+/**
+* Orc child class.
+*/
 class Orc : public Monster
 {
 public:
 	Orc() {
 		setType(MonsterType::OrcType);
-		setHealth(50); //Arbitrary Value, MODIFY
-		setMaxHealth(50); //Arbitrary Value, MODIFY
-		setDamage(8); //Arbitrary Value, MODIFY
+		setHealth(50);
+		setMaxHealth(50);
+		setDamage(8);
 		setNumOfAttacks(0);
 		setHealthRegen(0);
-		setDamageBlock(6); //Arbitrary Value, MODIFY
-		setDamageReflected(5); //Arbitrary Value, MODIFY
+		setDamageBlock(6);
+		setDamageReflected(5);
 	}
 
 	string listName() {
@@ -141,6 +156,9 @@ public:
 	}
 };
 
+/**
+* Team class represents a team of monsters. Includes a vector list of monsters, a integer pointing to the lead monster, and a team name.
+*/
 class Team
 {
 private:
@@ -175,6 +193,7 @@ public:
 		return TeamName;
 	}
 
+	// Lists the team roster and their health, starting with the team name and ending with the members.
 	string listTeam() {
 		string teamRoster = "";
 		teamRoster += "[ " + TeamName + " | ";
@@ -188,6 +207,7 @@ public:
 		return teamRoster;
 	}
 
+	// Lists the team roster and their health, starting with the members and ending with the team name.
 	string listTeamAlternate() {
 		string teamRoster = "";
 		teamRoster += "[ ";
@@ -201,6 +221,7 @@ public:
 		return teamRoster;
 	}
 
+	// Resets all monster healths back to their max health.
 	void resetTeam() {
 		LeadMonsterIdx = 0;
 		for (int i = 0; i < Roster.size(); i++) {
@@ -208,12 +229,16 @@ public:
 		}
 	}
 
+	// Removes all monsters from the team.
 	void clearTeam() {
 		Roster.clear();
 		LeadMonsterIdx = 0;
 	}
 };
 
+/**
+* Battle class that represents a single battle between 2 teams of monsters.
+*/
 class Battle
 {
 private:
@@ -237,12 +262,13 @@ public:
 
 	string resetGame() {
 		GameOver = false;
-		Team1->resetTeam();
-		Team2->resetTeam();
+		(*Team1).resetTeam();
+		(*Team2).resetTeam();
 		Turn = 1;
 		return "\nGame resetting...";
 	}
 
+	// Prints the start of the battle including the battle matchup.
 	string printBattleStart() {
 		string start = "";
 		for (int i = 0; i < 100; i++) {
@@ -259,6 +285,7 @@ public:
 		return matchup;
 	}
 
+	// Performs a single turn within a battle. Checks for 9 different battle scenarios.
 	string performTurn() {
 		string turn = "";
 		if (!GameOver) {
@@ -270,102 +297,120 @@ public:
 			turn += "\n";
 			turn += "Turn " + to_string(Turn) + "\n\n";
 			turn += printTeams() + "\n\n";
+
+			// If a Goblin and Troll are fighting
 			if (team1LeadType == MonsterType::GoblinType && team2LeadType == MonsterType::TrollType) {
-				for (int i = 0; i < (*Team1).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
-					(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
+				for (int i = 0; i < (*(*Team1).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
+					(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
 				}
-				(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage\n";
-				(*Team2).getLeadMonster()->increaseHealth(Team2->getLeadMonster()->getHealthRegen());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " regenerates " + to_string(Team2->getLeadMonster()->getHealthRegen()) + " health\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) + " damage\n";
+				(*(*Team2).getLeadMonster()).increaseHealth((*(*Team2).getLeadMonster()).getHealthRegen());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team2).getLeadMonster()).getHealthRegen()) + " health\n";
 			}
+			// If a Goblin and Orc are fighting
 			else if (team1LeadType == MonsterType::GoblinType && team2LeadType == MonsterType::OrcType) {
-				for (int i = 0; i < (*Team1).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team2->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-					(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock());
-					(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->getDamageReflected());
+				for (int i = 0; i < (*(*Team1).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) 
+						+ " damage, dealing " + to_string((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team2).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+					(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock());
+					(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).getDamageReflected());
 				}
-				(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) + " damage\n";
 			}
+			// If a Goblin and Goblin are fighting
 			else if (team1LeadType == MonsterType::GoblinType && team2LeadType == MonsterType::GoblinType) {
-				for (int i = 0; i < (*Team1).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
-					(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
+				for (int i = 0; i < (*(*Team1).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
+					(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
 				}
-				for (int i = 0; i < (*Team2).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
-					(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
+				for (int i = 0; i < (*(*Team2).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
+					(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
 				}
 			}
+			// If a Troll and Goblin are fighting
 			else if (team1LeadType == MonsterType::TrollType && team2LeadType == MonsterType::GoblinType) {
-				(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
 
-				for (int i = 0; i < (*Team2).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage\n";
-					(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
+				for (int i = 0; i < (*(*Team2).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) + " damage\n";
+					(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
 				}
-				(*Team1).getLeadMonster()->increaseHealth(Team1->getLeadMonster()->getHealthRegen());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " regenerates " + to_string(Team1->getLeadMonster()->getHealthRegen()) + " health\n";
+				(*(*Team1).getLeadMonster()).increaseHealth((*(*Team1).getLeadMonster()).getHealthRegen());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team1).getLeadMonster()).getHealthRegen()) + " health\n";
 			}
+			// If a Troll and Orc are fighting
 			else if (team1LeadType == MonsterType::TrollType && team2LeadType == MonsterType::OrcType) {
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team2->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-				(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock());
-				(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->getDamageReflected());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) 
+					+ " damage, dealing " + to_string((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team2).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock());
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).getDamageReflected());
 
-				(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage\n";
-				(*Team1).getLeadMonster()->increaseHealth(Team1->getLeadMonster()->getHealthRegen());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " regenerates " + to_string(Team1->getLeadMonster()->getHealthRegen()) + " health\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) + " damage\n";
+				(*(*Team1).getLeadMonster()).increaseHealth((*(*Team1).getLeadMonster()).getHealthRegen());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team1).getLeadMonster()).getHealthRegen()) + " health\n";
 			}
+			// If a Troll and Troll are fighting
 			else if (team1LeadType == MonsterType::TrollType && team2LeadType == MonsterType::TrollType) {
-				(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
-				(*Team1).getLeadMonster()->decreaseHealth((*Team2).getLeadMonster()->attack());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage\n";
-				(*Team1).getLeadMonster()->increaseHealth(Team1->getLeadMonster()->getHealthRegen());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " regenerates " + to_string(Team1->getLeadMonster()->getHealthRegen()) + " health\n";
-				(*Team2).getLeadMonster()->increaseHealth(Team2->getLeadMonster()->getHealthRegen());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " regenerates " + to_string(Team2->getLeadMonster()->getHealthRegen()) + " health\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) + " damage\n";
+				(*(*Team1).getLeadMonster()).increaseHealth((*(*Team1).getLeadMonster()).getHealthRegen());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team1).getLeadMonster()).getHealthRegen()) + " health\n";
+				(*(*Team2).getLeadMonster()).increaseHealth((*(*Team2).getLeadMonster()).getHealthRegen());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team2).getLeadMonster()).getHealthRegen()) + " health\n";
 			}
+			// If an Orc and Goblin are fighting
 			else if (team1LeadType == MonsterType::OrcType && team2LeadType == MonsterType::GoblinType) {
-				(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
 
-				for (int i = 0; i < (*Team2).getLeadMonster()->getNumOfAttacks(); i++) {
-					turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team1->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-					(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock());
-					(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->getDamageReflected());
+				for (int i = 0; i < (*(*Team2).getLeadMonster()).getNumOfAttacks(); i++) {
+					turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) 
+						+ " damage, dealing " + to_string((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team1).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+					(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock());
+					(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).getDamageReflected());
 				}
 
 			}
+			// If an Orc and Troll are fighting
 			else if (team1LeadType == MonsterType::OrcType && team2LeadType == MonsterType::TrollType) {
-				(*Team2).getLeadMonster()->decreaseHealth((*Team1).getLeadMonster()->attack());
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) + " damage\n";
 
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team1->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-				(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock());
-				(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->getDamageReflected());
-				(*Team2).getLeadMonster()->increaseHealth(Team2->getLeadMonster()->getHealthRegen());
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " regenerates " + to_string(Team2->getLeadMonster()->getHealthRegen()) + " health\n";
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) 
+					+ " damage, dealing " + to_string((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team1).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock());
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).getDamageReflected());
+				(*(*Team2).getLeadMonster()).increaseHealth((*(*Team2).getLeadMonster()).getHealthRegen());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " regenerates " + to_string((*(*Team2).getLeadMonster()).getHealthRegen()) + " health\n";
 			}
+			// If an Orc and Orc are fighting
 			else if (team1LeadType == MonsterType::OrcType && team2LeadType == MonsterType::OrcType) {
-				turn += Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " attacks " + Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " for " + to_string(Team1->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team2->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-				(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->attack() - Team2->getLeadMonster()->getDamageBlock());
-				(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->getDamageReflected());
+				turn += (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " attacks " + (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " for " + to_string((*(*Team1).getLeadMonster()).attack()) 
+					+ " damage, dealing " + to_string((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team2).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).attack() - (*(*Team2).getLeadMonster()).getDamageBlock());
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).getDamageReflected());
 
-				turn += Team2->getTeamName() + " " + Team2->getLeadMonster()->listName() + " attacks " + Team1->getTeamName() + " " + Team1->getLeadMonster()->listName() + " for " + to_string(Team2->getLeadMonster()->attack()) + " damage, dealing " + to_string(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock()) + " damage, and receiving " + to_string(Team1->getLeadMonster()->getDamageReflected()) + " reflected damage\n";
-				(*Team1).getLeadMonster()->decreaseHealth(Team2->getLeadMonster()->attack() - Team1->getLeadMonster()->getDamageBlock());
-				(*Team2).getLeadMonster()->decreaseHealth(Team1->getLeadMonster()->getDamageReflected());
+				turn += (*Team2).getTeamName() + " " + (*(*Team2).getLeadMonster()).listName() + " attacks " + (*Team1).getTeamName() + " " + (*(*Team1).getLeadMonster()).listName() + " for " + to_string((*(*Team2).getLeadMonster()).attack()) 
+					+ " damage, dealing " + to_string((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock()) + " damage, and receiving " + to_string((*(*Team1).getLeadMonster()).getDamageReflected()) + " reflected damage\n";
+				(*(*Team1).getLeadMonster()).decreaseHealth((*(*Team2).getLeadMonster()).attack() - (*(*Team1).getLeadMonster()).getDamageBlock());
+				(*(*Team2).getLeadMonster()).decreaseHealth((*(*Team1).getLeadMonster()).getDamageReflected());
 			}
 
-			if ((*Team1).getLeadMonster()->checkHealth() <= 0)
+			// If one or both of the lead Monster die, update the roster
+			if ((*(*Team1).getLeadMonster()).checkHealth() <= 0)
 				turn += printLeaderDied(Team1);
-			if ((*Team2).getLeadMonster()->checkHealth() <= 0)
+			if ((*(*Team2).getLeadMonster()).checkHealth() <= 0)
 				turn += printLeaderDied(Team2);
 
+			// Check if the win condition has been met
 			if ((*Team1).getLeadMonster() == NULL && (*Team2).getLeadMonster() == NULL) {
 				GameOver = true;
 				turn += "\nBattle over. It's a tie!\n\n";
@@ -392,7 +437,7 @@ public:
 	}
 
 	string printLeaderDied(Team* team) {
-		string result = (*team).getTeamName() + " " + (*team).getLeadMonster()->listName() + " has died\n";
+		string result = (*team).getTeamName() + " " + (*(*team).getLeadMonster()).listName() + " has died\n";
 		(*team).removeLeadMonster();
 		return result;
 	}
@@ -480,7 +525,7 @@ int main()
 	team1.clearTeam();
 	team2.clearTeam();
 
-	// generate random monster teams
+	// Generate random monster teams
 	srand(time(0));
 	int randMonster;
 	for (int i = 0; i < 4; i++) {
@@ -507,7 +552,6 @@ int main()
 			team2.addMonster(new Orc());
 		}
 	}
-
 	cout << game.printBattleStart();
 	while (!game.isGameOver()) {
 		cout << game.performTurn();
